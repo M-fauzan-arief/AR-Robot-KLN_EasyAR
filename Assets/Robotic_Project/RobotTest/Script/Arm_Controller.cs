@@ -6,6 +6,33 @@ using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using System.Text;
 
+[System.Serializable]
+public class EndEffector
+{
+    public string type;
+    public string enable;
+}
+
+[System.Serializable]
+public class Data
+{
+    public string j1;
+    public string j2;
+    public string j3;
+    public string j4;
+    public string status;
+    public EndEffector endEffector;
+}
+
+[System.Serializable]
+public class RobotMessage
+{
+    public string nodeID;
+    public string moveType;
+    public Data data;
+    public long unixtime;
+}
+
 public class Arm_Controller : MonoBehaviour
 {
     // MQTT
@@ -120,8 +147,38 @@ public class Arm_Controller : MonoBehaviour
 
     void SendJointValues()
     {
-        string message = $"{J1YRot},{J2YRot},{J3YRot},{J4YRot}";
-        client.Publish("robot/jointValues", Encoding.UTF8.GetBytes(message), MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, false);
+        var endEffector = new EndEffector
+        {
+            type = "suck",
+            enable = "True"
+        };
+
+        var data = new Data
+        {
+            j1 = J1YRot.ToString(),
+            j2 = J2YRot.ToString(),
+            j3 = J3YRot.ToString(),
+            j4 = J4YRot.ToString(),
+            status = "True",
+            endEffector = endEffector
+        };
+
+        var robotMessage = new RobotMessage
+        {
+            nodeID = "dobot-l-01",
+            moveType = "joint",
+            data = data,
+            unixtime = GetUnixTimestamp()
+        };
+
+        string jsonMessage = JsonUtility.ToJson(robotMessage);
+        client.Publish("robot/jointValues", Encoding.UTF8.GetBytes(jsonMessage), MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, false);
+    }
+
+    private long GetUnixTimestamp()
+    {
+        System.DateTime unixEpoch = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+        return (long)(System.DateTime.UtcNow - unixEpoch).TotalSeconds;
     }
 
     private void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
