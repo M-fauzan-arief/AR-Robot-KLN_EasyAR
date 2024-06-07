@@ -3,13 +3,20 @@ using TMPro;
 
 public class ObjectPlacementManager : MonoBehaviour
 {
+    [Header("GameObjects")]
     public GameObject burger;         // Reference to the Burger GameObject
     public GameObject cola;           // Reference to the Cola GameObject
     public GameObject fries;          // Reference to the Fries GameObject
 
-    public Transform burgerTarget;    // Target position for Burger
-    public Transform colaTarget;      // Target position for Cola
-    public Transform friesTarget;     // Target position for Fries
+    [Header("Targets")]
+    public Transform burgerTarget;    // Target position and rotation for Burger
+    public Transform colaTarget;      // Target position and rotation for Cola
+    public Transform friesTarget;     // Target position and rotation for Fries
+
+    [Header("Colliders")]
+    public Trigger burgerCollider;   // Trigger collider for Burger target
+    public Trigger colaCollider;     // Trigger collider for Cola target
+    public Trigger friesCollider;    // Trigger collider for Fries target
 
     public TextMeshProUGUI feedbackText;  // UI Text for feedback
 
@@ -25,62 +32,40 @@ public class ObjectPlacementManager : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == burger)
+        if (other.gameObject == burger && other == burgerCollider)
         {
-            if (IsCloseToTarget(burger, burgerTarget))
-            {
-                burgerPlaced = true;
-                burger.transform.position = burgerTarget.position;
-                burger.GetComponent<Renderer>().material.color = Color.green; // Change color to green
-                feedbackText.text = "Burger placed correctly!";
-                Debug.Log("Burger placed correctly!");
-            }
-            else
-            {
-                feedbackText.text = "Burger placed incorrectly!";
-                Debug.Log("Burger placed incorrectly!");
-            }
+            PlaceObject(burger, burgerTarget);
+            feedbackText.text = "Burger placed correctly!";
+            Debug.Log("Burger placed correctly!");
         }
-        else if (other.gameObject == cola)
+        else if (other.gameObject == cola && other == colaCollider)
         {
-            if (IsCloseToTarget(cola, colaTarget))
-            {
-                colaPlaced = true;
-                cola.transform.position = colaTarget.position;
-                cola.GetComponent<Renderer>().material.color = Color.green; // Change color to green
-                feedbackText.text = "Cola placed correctly!";
-                Debug.Log("Cola placed correctly!");
-            }
-            else
-            {
-                feedbackText.text = "Cola placed incorrectly!";
-                Debug.Log("Cola placed incorrectly!");
-            }
+            PlaceObject(cola, colaTarget);
+            feedbackText.text = "Cola placed correctly!";
+            Debug.Log("Cola placed correctly!");
         }
-        else if (other.gameObject == fries)
+        else if (other.gameObject == fries && other == friesCollider)
         {
-            if (IsCloseToTarget(fries, friesTarget))
-            {
-                friesPlaced = true;
-                fries.transform.position = friesTarget.position;
-                fries.GetComponent<Renderer>().material.color = Color.green; // Change color to green
-                feedbackText.text = "Fries placed correctly!";
-                Debug.Log("Fries placed correctly!");
-            }
-            else
-            {
-                feedbackText.text = "Fries placed incorrectly!";
-                Debug.Log("Fries placed incorrectly!");
-            }
+            PlaceObject(fries, friesTarget);
+            feedbackText.text = "Fries placed correctly!";
+            Debug.Log("Fries placed correctly!");
+        }
+        else
+        {
+            feedbackText.text = "Object placed incorrectly!";
+            Debug.Log("Object placed incorrectly!");
         }
 
         CheckWinCondition();
     }
 
-    private bool IsCloseToTarget(GameObject obj, Transform target)
+    private void PlaceObject(GameObject obj, Transform target)
     {
-        float distance = Vector3.Distance(obj.transform.position, target.position);
-        return distance < 1.0f; // You can adjust this threshold as needed
+        obj.transform.position = target.position;
+        obj.transform.rotation = target.rotation;
+        obj.GetComponent<Renderer>().material.color = Color.green;
+        obj.GetComponent<Rigidbody>().isKinematic = true; // Disable physics
+        obj.transform.SetParent(target); // Attach to the target
     }
 
     private void CheckWinCondition()

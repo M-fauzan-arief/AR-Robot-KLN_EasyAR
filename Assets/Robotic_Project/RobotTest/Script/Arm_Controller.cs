@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using uPLibrary.Networking.M2Mqtt;
-using uPLibrary.Networking.M2Mqtt.Messages;
-using System.Text;
+using System.Collections;
 
 [System.Serializable]
 public class EndEffector
@@ -35,80 +31,72 @@ public class RobotMessage
 
 public class Arm_Controller : MonoBehaviour
 {
-    // MQTT
-    private MqttClient client;
-    private string brokerAddress = "broker.hivemq.com";  // Change to your MQTT broker address
-    private int brokerPort = 1883;
-
-    // Slider di UI
+    [Header("Slider")]
     public Slider J1_Sliders;
     public Slider J2_Sliders;
     public Slider J3_Sliders;
     public Slider J4_Sliders;
 
-    // Default nilai Slider
-    public float J1_SlidersValue = 0.0f;
-    public float J2_SlidersValue = 0.0f;
-    public float J3_SlidersValue = 0.0f;
-    public float J4_SlidersValue = 0.0f;
+    private float J1_SlidersValue = 0.0f;
+    private float J2_SlidersValue = 0.0f;
+    private float J3_SlidersValue = 0.0f;
+    private float J4_SlidersValue = 0.0f;
 
-    // Mengambil nilai Transform dari Joint
+    [Header("Joint")]
     public Transform J1;
     public Transform J2;
     public Transform J3;
     public Transform J4;
 
-    // Pengaturan kecepatan rotasi tiap joint
+    [Header("Turn Rate")]
     public float J1_TurnRate = 1.0f;
     public float J2_TurnRate = 1.0f;
     public float J3_TurnRate = 1.0f;
     public float J4_TurnRate = 1.0f;
 
-    // Nilai max & min rotasi joint 1
     private float J1YRot = 0.0f;
     private float J1YRotMin = -135.0f;
     private float J1YRotMax = 135.0f;
 
-    // Nilai max & min rotasi joint 2
-    private float J2YRot = 180.0f;
-    private float J2YRotMin = 120.0f;
-    private float J2YRotMax = 225.0f;
+    private float J2YRot = 0.0f;
+    private float J2YRotMin = -8.0f;
+    private float J2YRotMax = 80.0f;
 
-    // Nilai max & min rotasi joint 3
     private float J3YRot = 0.0f;
-    private float J3YRotMin = -10.0f;
-    private float J3YRotMax = 85.0f;
+    private float J3YRotMin = -7.05f;
+    private float J3YRotMax = 61.0f;
 
-    // Nilai max & min rotasi joint 4
     private float J4YRot = 0.0f;
-    private float J4YRotMin = -360.0f;
-    private float J4YRotMax = 360.0f;
+    private float J4YRotMin = -145.0f;
+    private float J4YRotMax = 145.0f;
 
-    // Start is called before the first frame update
+    [Header("Reset Button")]
+    public Button resetButton;
+
+    [Header("Reset Duration")]
+    public float resetDuration = 2.0f;
+
+    private MQTT_Client mqttClient;
+    private bool endEffectorEnabled;
+
     void Start()
     {
-        // Initialize MQTT client
-        client = new MqttClient(brokerAddress);
-        string clientId = System.Guid.NewGuid().ToString();
-        client.Connect(clientId);
+        mqttClient = GetComponent<MQTT_Client>();
 
-        // Set up MQTT message received handler
-        client.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
-
-        // Subscribe to topics if needed
-        client.Subscribe(new string[] { "robot/commands" }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
-
-        // Mengatur nilai minimum dari slider joint
         J1_Sliders.minValue = -1;
         J2_Sliders.minValue = -1;
         J3_Sliders.minValue = -1;
         J4_Sliders.minValue = -1;
 
-        // Mengatur nilai maksimum dari slider joint
         J1_Sliders.maxValue = 1;
         J2_Sliders.maxValue = 1;
         J3_Sliders.maxValue = 1;
         J4_Sliders.maxValue = 1;
+
+        if (resetButton != null)
+        {
+            resetButton.onClick.AddListener(StartReset);
+        }
     }
 
     void CheckInput()
@@ -121,36 +109,37 @@ public class Arm_Controller : MonoBehaviour
 
     void ProcessMovement()
     {
-        // J1
         J1YRot += J1_SlidersValue * J1_TurnRate;
         J1YRot = Mathf.Clamp(J1YRot, J1YRotMin, J1YRotMax);
         J1.localEulerAngles = new Vector3(J1.localEulerAngles.x, J1YRot, J1.localEulerAngles.z);
 
-        // J2
         J2YRot += J2_SlidersValue * J2_TurnRate;
         J2YRot = Mathf.Clamp(J2YRot, J2YRotMin, J2YRotMax);
-        J2.localEulerAngles = new Vector3(J2.localEulerAngles.x, -J2YRot, J2.localEulerAngles.z);
+        J2.localEulerAngles = new Vector3(J2.localEulerAngles.x, J2YRot, J2.localEulerAngles.z);
 
-        // J3
         J3YRot += J3_SlidersValue * J3_TurnRate;
         J3YRot = Mathf.Clamp(J3YRot, J3YRotMin, J3YRotMax);
-        J3.localEulerAngles = new Vector3(J3.localEulerAngles.x, J3YRot, J3.localEulerAngles.z);
+        J3.localEulerAngles = new Vector3(J3YRot, J3.localEulerAngles.y, J3.localEulerAngles.z);
 
-        // J4
         J4YRot += J4_SlidersValue * J4_TurnRate;
         J4YRot = Mathf.Clamp(J4YRot, J4YRotMin, J4YRotMax);
         J4.localEulerAngles = new Vector3(J4.localEulerAngles.x, J4.localEulerAngles.x, J4YRot);
 
-        // Send joint values via MQTT
         SendJointValues();
     }
 
     void SendJointValues()
     {
+        if (!mqttClient.IsConnected())
+        {
+            Debug.LogError("MQTT client is not connected. Cannot send joint values.");
+            return;
+        }
+
         var endEffector = new EndEffector
         {
             type = "suck",
-            enable = "True"
+            enable = endEffectorEnabled.ToString()
         };
 
         var data = new Data
@@ -171,21 +160,13 @@ public class Arm_Controller : MonoBehaviour
             unixtime = GetUnixTimestamp()
         };
 
-        string jsonMessage = JsonUtility.ToJson(robotMessage);
-        client.Publish("robot/jointValues", Encoding.UTF8.GetBytes(jsonMessage), MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, false);
+        mqttClient.PublishJointValues(robotMessage);
     }
 
     private long GetUnixTimestamp()
     {
         System.DateTime unixEpoch = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
         return (long)(System.DateTime.UtcNow - unixEpoch).TotalSeconds;
-    }
-
-    private void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
-    {
-        // Handle incoming MQTT messages if needed
-        string receivedMessage = Encoding.UTF8.GetString(e.Message);
-        Debug.Log("Received: " + receivedMessage);
     }
 
     public void ResetSlider()
@@ -201,19 +182,59 @@ public class Arm_Controller : MonoBehaviour
         J4_Sliders.value = 0.0f;
     }
 
-    // Update is called once per frame
+    private IEnumerator ResetJoints()
+    {
+        float elapsedTime = 0.0f;
+
+        float initialJ1Rotation = J1YRot;
+        float initialJ2Rotation = J2YRot;
+        float initialJ3Rotation = J3YRot;
+        float initialJ4Rotation = J4YRot;
+
+        while (elapsedTime < resetDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / resetDuration;
+
+            J1YRot = Mathf.Lerp(initialJ1Rotation, 0.0f, t);
+            J2YRot = Mathf.Lerp(initialJ2Rotation, 0.0f, t);
+            J3YRot = Mathf.Lerp(initialJ3Rotation, 0.0f, t);
+            J4YRot = Mathf.Lerp(initialJ4Rotation, 0.0f, t);
+
+            J1.localEulerAngles = new Vector3(J1.localEulerAngles.x, J1YRot, J1.localEulerAngles.z);
+            J2.localEulerAngles = new Vector3(J2.localEulerAngles.x, J2YRot, J2.localEulerAngles.z);
+            J3.localEulerAngles = new Vector3(J3YRot, J3.localEulerAngles.y, J3.localEulerAngles.z);
+            J4.localEulerAngles = new Vector3(J4.localEulerAngles.x, J4.localEulerAngles.x, J4YRot);
+
+            yield return null;
+        }
+
+        J1YRot = 0.0f;
+        J2YRot = 0.0f;
+        J3YRot = 0.0f;
+        J4YRot = 0.0f;
+
+        J1.localEulerAngles = new Vector3(J1.localEulerAngles.x, 0.0f, J1.localEulerAngles.z);
+        J2.localEulerAngles = new Vector3(J2.localEulerAngles.x, 0.0f, J2.localEulerAngles.z);
+        J3.localEulerAngles = new Vector3(0.0f, J3.localEulerAngles.y, J3.localEulerAngles.z);
+        J4.localEulerAngles = new Vector3(J4.localEulerAngles.x, J4.localEulerAngles.x, 0.0f);
+    }
+
+    private void StartReset()
+    {
+        StartCoroutine(ResetJoints());
+        ResetSlider();
+    }
+
+    public void SetEndEffectorState(bool isEnabled)
+    {
+        endEffectorEnabled = isEnabled;
+        SendJointValues();
+    }
+
     void Update()
     {
         CheckInput();
         ProcessMovement();
-    }
-
-    private void OnDestroy()
-    {
-        // Disconnect MQTT client
-        if (client.IsConnected)
-        {
-            client.Disconnect();
-        }
     }
 }

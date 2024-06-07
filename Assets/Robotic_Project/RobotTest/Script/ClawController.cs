@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Import the TextMeshPro namespace
+using TMPro;
 
 public class ClawController : MonoBehaviour
 {
@@ -13,8 +13,12 @@ public class ClawController : MonoBehaviour
     [HideInInspector]
     public bool isHolding = false;     // Indicates if the claw is holding an object
 
+    private Arm_Controller armController;
+
     void Start()
     {
+        armController = FindObjectOfType<Arm_Controller>();
+
         // Ensure the button's onClick event calls the HandleGrabButton method
         if (grabButton != null)
         {
@@ -100,6 +104,12 @@ public class ClawController : MonoBehaviour
         {
             buttonText.text = "Release";
         }
+
+        // Notify the Arm_Controller
+        if (armController != null)
+        {
+            armController.SetEndEffectorState(isHolding);
+        }
     }
 
     private void ReleaseObject()
@@ -122,6 +132,12 @@ public class ClawController : MonoBehaviour
             if (buttonText != null)
             {
                 buttonText.text = "Grab";
+            }
+
+            // Notify the Arm_Controller
+            if (armController != null)
+            {
+                armController.SetEndEffectorState(isHolding);
             }
         }
     }
