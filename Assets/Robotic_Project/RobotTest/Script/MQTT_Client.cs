@@ -58,7 +58,7 @@ public class MQTT_Client : MonoBehaviour
         {
             string topic = "/robot/Dobot/jointValues";
             string message = JsonUtility.ToJson(robotMessage);
-            client.Publish(topic, Encoding.UTF8.GetBytes(message), MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, false);
+            client.Publish(topic, Encoding.UTF8.GetBytes(message), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
         }
         else
         {
