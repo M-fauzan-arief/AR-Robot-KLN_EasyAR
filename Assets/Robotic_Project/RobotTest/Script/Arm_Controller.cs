@@ -36,27 +36,23 @@ public class Arm_Controller : MonoBehaviour
     public Slider J2_Sliders;
     public Slider J3_Sliders;
     public Slider J4_Sliders;
-    public Slider J5_Sliders;
 
     private float J1_SlidersValue = 0.0f;
     private float J2_SlidersValue = 0.0f;
     private float J3_SlidersValue = 0.0f;
     private float J4_SlidersValue = 0.0f;
 
-
     [Header("Joint")]
     public Transform J1;
     public Transform J2;
     public Transform J3;
     public Transform J4;
-    public Transform J5;
 
     [Header("Turn Rate")]
     public float J1_TurnRate = 1.0f;
     public float J2_TurnRate = 1.0f;
     public float J3_TurnRate = 1.0f;
     public float J4_TurnRate = 1.0f;
-    public float J5_TurnRate = 1.0f;
 
     private float J1YRot = 0.0f;
     private float J1YRotMin = -135.0f;
@@ -73,10 +69,6 @@ public class Arm_Controller : MonoBehaviour
     private float J4YRot = 0.0f;
     private float J4YRotMin = -145.0f;
     private float J4YRotMax = 145.0f;
-
-    private float J5YRot = 0.0f;
-    private float J5YRotMin = -180.0f;
-    private float J5YRotMax = 180.0f;
 
     [Header("Reset Button")]
     public Button resetButton;
@@ -96,12 +88,10 @@ public class Arm_Controller : MonoBehaviour
         J3_Sliders.minValue = -1;
         J4_Sliders.minValue = -1;
 
-
         J1_Sliders.maxValue = 1;
         J2_Sliders.maxValue = 1;
         J3_Sliders.maxValue = 1;
         J4_Sliders.maxValue = 1;
- 
 
         if (resetButton != null)
         {
@@ -115,7 +105,6 @@ public class Arm_Controller : MonoBehaviour
         J2_SlidersValue = J2_Sliders.value;
         J3_SlidersValue = J3_Sliders.value;
         J4_SlidersValue = J4_Sliders.value;
-
     }
 
     void ProcessMovement()
@@ -135,8 +124,6 @@ public class Arm_Controller : MonoBehaviour
         J4YRot += J4_SlidersValue * J4_TurnRate;
         J4YRot = Mathf.Clamp(J4YRot, J4YRotMin, J4YRotMax);
         J4.localEulerAngles = new Vector3(J4.localEulerAngles.x, J4.localEulerAngles.x, J4YRot);
-
-
 
         SendJointValues();
     }
@@ -161,7 +148,6 @@ public class Arm_Controller : MonoBehaviour
             j2 = J2YRot.ToString(),
             j3 = J3YRot.ToString(),
             j4 = J4YRot.ToString(),
-  
             status = "True",
             endEffector = endEffector
         };
@@ -190,12 +176,10 @@ public class Arm_Controller : MonoBehaviour
         J3_SlidersValue = 0.0f;
         J4_SlidersValue = 0.0f;
 
-
         J1_Sliders.value = 0.0f;
         J2_Sliders.value = 0.0f;
         J3_Sliders.value = 0.0f;
         J4_Sliders.value = 0.0f;
-     
     }
 
     private IEnumerator ResetJoints()
@@ -206,7 +190,6 @@ public class Arm_Controller : MonoBehaviour
         float initialJ2Rotation = J2YRot;
         float initialJ3Rotation = J3YRot;
         float initialJ4Rotation = J4YRot;
-        float initialJ5Rotation = J5.localEulerAngles.y;
 
         while (elapsedTime < resetDuration)
         {
@@ -217,7 +200,6 @@ public class Arm_Controller : MonoBehaviour
             J2YRot = Mathf.Lerp(initialJ2Rotation, 0.0f, t);
             J3YRot = Mathf.Lerp(initialJ3Rotation, 0.0f, t);
             J4YRot = Mathf.Lerp(initialJ4Rotation, 0.0f, t);
-            J5.localEulerAngles = new Vector3(J5.localEulerAngles.x, Mathf.Lerp(initialJ5Rotation, 0.0f, t), J5.localEulerAngles.z);
 
             J1.localEulerAngles = new Vector3(J1.localEulerAngles.x, J1YRot, J1.localEulerAngles.z);
             J2.localEulerAngles = new Vector3(J2.localEulerAngles.x, J2YRot, J2.localEulerAngles.z);
@@ -231,7 +213,6 @@ public class Arm_Controller : MonoBehaviour
         J2YRot = 0.0f;
         J3YRot = 0.0f;
         J4YRot = 0.0f;
-        J5.localEulerAngles = new Vector3(J5.localEulerAngles.x, 0.0f, J5.localEulerAngles.z);
 
         J1.localEulerAngles = new Vector3(J1.localEulerAngles.x, 0.0f, J1.localEulerAngles.z);
         J2.localEulerAngles = new Vector3(J2.localEulerAngles.x, 0.0f, J2.localEulerAngles.z);
