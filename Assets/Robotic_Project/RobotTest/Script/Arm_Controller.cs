@@ -31,6 +31,12 @@ public class RobotMessage
 
 public class Arm_Controller : MonoBehaviour
 {
+
+    private float lastJ1YRot = float.NaN;
+    private float lastJ2YRot = float.NaN;
+    private float lastJ3YRot = float.NaN;
+    private float lastJ4YRot = float.NaN;
+
     [Header("Slider")]
     public Slider J1_Sliders;
     public Slider J2_Sliders;
@@ -136,6 +142,12 @@ public class Arm_Controller : MonoBehaviour
             return;
         }
 
+        if (J1YRot == lastJ1YRot && J2YRot == lastJ2YRot && J3YRot == lastJ3YRot && J4YRot == lastJ4YRot)
+        {
+            Debug.Log("Duplicate joint values detected. Skipping message.");
+            return;
+        }
+
         var endEffector = new EndEffector
         {
             type = "suck",
@@ -161,7 +173,15 @@ public class Arm_Controller : MonoBehaviour
         };
 
         mqttClient.PublishJointValues(robotMessage);
+
+        // Update last joint values
+        lastJ1YRot = J1YRot;
+        lastJ2YRot = J2YRot;
+        lastJ3YRot = J3YRot;
+        lastJ4YRot = J4YRot;
     }
+
+
 
     private long GetUnixTimestamp()
     {

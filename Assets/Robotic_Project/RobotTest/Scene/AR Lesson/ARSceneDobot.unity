@@ -2326,7 +2326,7 @@ Transform:
   m_GameObject: {fileID: 1416824059}
   serializedVersion: 2
   m_LocalRotation: {x: -0.02272183, y: 0.96978647, z: -0.22160995, w: -0.09943321}
-  m_LocalPosition: {x: 0.3015159, y: 3.92, z: -1.27}
+  m_LocalPosition: {x: 0.41, y: 4.18, z: -0.74}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4249,17 +4249,14 @@ MonoBehaviour:
   J2_Sliders: {fileID: 8785905885065868754}
   J3_Sliders: {fileID: 7646309380334153103}
   J4_Sliders: {fileID: 6797499619130922212}
-  J5_Sliders: {fileID: 2053531581}
   J1: {fileID: 6900626628298245866}
   J2: {fileID: 2075291435}
   J3: {fileID: 7943634489972934531}
   J4: {fileID: 6488714937390435247}
-  J5: {fileID: 3841170297572691335}
   J1_TurnRate: 1
   J2_TurnRate: 1
   J3_TurnRate: 1
   J4_TurnRate: 1
-  J5_TurnRate: 1
   resetButton: {fileID: 1844063124}
   resetDuration: 2
 --- !u!114 &2643287779272540985
