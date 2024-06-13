@@ -28,7 +28,7 @@ public class ClawController : MonoBehaviour
 
         if (buttonText != null)
         {
-            buttonText.text = "Grab"; // Initialize the button text
+            buttonText.text = "GRAB"; // Initialize the button text
         }
     }
 
@@ -102,7 +102,7 @@ public class ClawController : MonoBehaviour
         // Update the button text
         if (buttonText != null)
         {
-            buttonText.text = "Release";
+            buttonText.text = "RELEASE";
         }
 
         // Notify the Arm_Controller
