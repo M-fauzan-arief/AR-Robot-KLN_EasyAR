@@ -3,96 +3,42 @@ using TMPro;
 
 public class ObjectPlacementManager : MonoBehaviour
 {
-    public GameObject burger;         // Reference to the Burger GameObject
-    public GameObject cola;           // Reference to the Cola GameObject
-    public GameObject fries;          // Reference to the Fries GameObject
+    public GameObject assignedObject;      // The correct object for this trigger
+    public Transform target;               // Target position for the assigned object
+    public TextMeshProUGUI feedbackText;   // UI Text for feedback
+    public ScoreManager scoreManager;      // Reference to ScoreManager script
+    public int objectPlaced = 0;
 
-    public Transform burgerTarget;    // Target position for Burger
-    public Transform colaTarget;      // Target position for Cola
-    public Transform friesTarget;     // Target position for Fries
-
-    public TextMeshProUGUI feedbackText;  // UI Text for feedback
-
-    private bool burgerPlaced = false;
-    private bool colaPlaced = false;
-    private bool friesPlaced = false;
-
-    void Start()
+    private void Start()
     {
         feedbackText.text = "";
-        Debug.Log("ObjectPlacementManager initialized. Ready to place objects.");
+        scoreManager = FindObjectOfType<ScoreManager>(); // Find ScoreManager script in the scene
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == burger)
+        if (other.gameObject == assignedObject)
         {
-            if (IsCloseToTarget(burger, burgerTarget))
-            {
-                burgerPlaced = true;
-                burger.transform.position = burgerTarget.position;
-                burger.GetComponent<Renderer>().material.color = Color.green; // Change color to green
-                feedbackText.text = "Burger placed correctly!";
-                Debug.Log("Burger placed correctly!");
-            }
-            else
-            {
-                feedbackText.text = "Burger placed incorrectly!";
-                burger.GetComponent<Renderer>().material.color = Color.red; // Change color to green
-                Debug.Log("Burger placed incorrectly!");
-            }
+            // Correct object entered the trigger
+            TeleportAndColorObject(other.gameObject, target.position, Color.green);
+            feedbackText.text = assignedObject.name + " placed correctly!";
+            Debug.Log(assignedObject.name + " placed correctly!");
+            scoreManager.UpdateScore(); // Notify ScoreManager to update score
+            scoreManager.UpdateObjectPlace();
         }
-        else if (other.gameObject == cola)
+        else
         {
-            if (IsCloseToTarget(cola, colaTarget))
-            {
-                colaPlaced = true;
-                cola.transform.position = colaTarget.position;
-                cola.GetComponent<Renderer>().material.color = Color.green; // Change color to red
-                feedbackText.text = "Cola placed correctly!";
-                Debug.Log("Cola placed correctly!");
-            }
-            else
-            {
-                feedbackText.text = "Cola placed incorrectly!";
-                cola.GetComponent<Renderer>().material.color = Color.red; // Change color to red
-                Debug.Log("Cola placed incorrectly!");
-            }
+            // Incorrect object entered the trigger
+            TeleportAndColorObject(other.gameObject, target.position, Color.red);
+            feedbackText.text = other.gameObject.name + " placed incorrectly!";
+            Debug.Log(other.gameObject.name + " placed incorrectly!");
+            scoreManager.UpdateObjectPlace();
         }
-        else if (other.gameObject == fries)
-        {
-            if (IsCloseToTarget(fries, friesTarget))
-            {
-                friesPlaced = true;
-                fries.transform.position = friesTarget.position;
-                fries.GetComponent<Renderer>().material.color = Color.green; // Change color to green
-                feedbackText.text = "Fries placed correctly!";
-                Debug.Log("Fries placed correctly!");
-            }
-            else
-            {
-                feedbackText.text = "Fries placed incorrectly!";
-                fries.GetComponent<Renderer>().material.color = Color.red; // Change color to red
-                Debug.Log("Fries placed incorrectly!");
-            }
-        }
-
-        CheckWinCondition();
     }
 
-    private bool IsCloseToTarget(GameObject obj, Transform target)
+    private void TeleportAndColorObject(GameObject obj, Vector3 position, Color color)
     {
-        float distance = Vector3.Distance(obj.transform.position, target.position);
-        return distance < 1.0f; // You can adjust this threshold as needed
-    }
-
-    private void CheckWinCondition()
-    {
-        if (burgerPlaced && colaPlaced && friesPlaced)
-        {
-            feedbackText.text = "You win! All objects placed correctly! 3 Stars!";
-            Debug.Log("You win! All objects placed correctly! 3 Stars!");
-            // Additional win logic such as awarding points or stars can go here
-        }
+        obj.transform.position = position;
+        obj.GetComponent<Renderer>().material.color = color;
     }
 }

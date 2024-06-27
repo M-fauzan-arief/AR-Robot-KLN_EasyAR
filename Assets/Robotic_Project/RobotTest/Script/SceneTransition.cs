@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneTransition : MonoBehaviour
 {
+    [SerializeField] GameObject pauseMenu;
     // Start is called before the first frame update
     void Start()
     {
@@ -66,5 +67,24 @@ public class SceneTransition : MonoBehaviour
     {
         Application.Quit();
         Debug.Log("Application is quit");
+    }
+
+
+    // Main menu logic
+    public void pause()
+    {
+        pauseMenu.SetActive(false);
+        Time.timeScale = 0;
+    }
+
+    public void Resume()
+    {
+        pauseMenu.SetActive(true);
+        Time.timeScale = 1;
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

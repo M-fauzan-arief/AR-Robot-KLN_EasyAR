@@ -42,11 +42,11 @@ PlayerSettings:
   m_SplashScreenLogos:
   - logo: {fileID: 10404, guid: 0000000000000000f000000000000000, type: 0}
     duration: 2
-  - logo: {fileID: 21300000, guid: f907f786ea67e22438c4d77240ea9ad9, type: 3}
+  - logo: {fileID: 21300000, guid: 9cad8aab6b870514f8c4d19c7358643c, type: 3}
     duration: 2
-  - logo: {fileID: 21300000, guid: ec37da52d5c24e14f879c93282b134b9, type: 3}
+  - logo: {fileID: 21300000, guid: 753f8a9abee4bc2468bf87349438f13a, type: 3}
     duration: 2
-  - logo: {fileID: 21300000, guid: a3966aec3cf84d045bb3115f2754603d, type: 3}
+  - logo: {fileID: 21300000, guid: 0fc304042bf90d442b682cc710d1b20f, type: 3}
     duration: 2
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
@@ -144,14 +144,7 @@ PlayerSettings:
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
   bundleVersion: 0.1
-  preloadedAssets:
-  - {fileID: 4800000, guid: ea9a295053a0dc440b9698a7f41d9741, type: 3}
-  - {fileID: 4800000, guid: 1499e61b3897c4a4b9318a56ca931b8a, type: 3}
-  - {fileID: 4800000, guid: 798d6e253a35a144d94205b80c8fd48b, type: 3}
-  - {fileID: 4800000, guid: ae539cb2b258bd047a57837fd579cc80, type: 3}
-  - {fileID: 4800000, guid: 58841e6e22debfc43ba09a0cf58cd92d, type: 3}
-  - {fileID: 4800000, guid: a336f422ffebbec4c89b4dac26022d5f, type: 3}
-  - {fileID: 11400000, guid: 0f20129de4c3ab540a31fb56717becaf, type: 2}
+  preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
