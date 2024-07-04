@@ -1192,6 +1192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66c0f4d84e338ce488eb6eb081b39893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pauseMenu: {fileID: 0}
 --- !u!114 &1890067138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1238,7 +1239,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1890067137}
         m_TargetAssemblyTypeName: SceneTransition, Assembly-CSharp
-        m_MethodName: ARSceneDobot
+        m_MethodName: ARSceneAPiro
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1600,6 +1601,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66c0f4d84e338ce488eb6eb081b39893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pauseMenu: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
